@@ -64,15 +64,31 @@ $(document).ready(function() {
   var EditUser = Backbone.View.extend({
     el: '.page',
 
-    render: function(){
-      var template = _.template( $('#edit-user-template').html(), {} );
-
-      this.$el.html(template);
+    render: function(options){
+      var that = this;
+      console.log(options);
+      if(options.id) {
+        //GET request to grab user info
+        // we replace var user, with that.user to attach user to the scope of view
+        that.user = new User({id: options.id});
+        that.user.fetch({
+          // gets user with given ID
+          success: function(user){
+            var template = _.template( $('#edit-user-template').html(), {user: user} );
+            that.$el.html(template);
+          }
+        }) 
+      } else {
+        //GET blank form
+        var template = _.template( $('#edit-user-template').html(), {user: null} );
+        this.$el.html(template);
+      }
     },
 
     events: {
       // Backbone lets us define event listeners like 'click button' : 'doAction'
-      'submit .edit-user-form' : 'saveUser'
+      'submit .edit-user-form' : 'saveUser',
+      'click .delete' : 'deleteUser'
     },
 
     saveUser: function(event){
@@ -86,6 +102,16 @@ $(document).ready(function() {
         }
       });
       return false;
+    },
+
+    deleteUser: function(event) {
+      this.user.destroy({
+        // success is only triggered if it receives some json object back from the server
+        success: function(){
+          router.navigate('', {trigger: true});
+        }
+      });
+      return false;
     }
   });
 
@@ -94,7 +120,9 @@ $(document).ready(function() {
   var Router = Backbone.Router.extend({
     routes: {
       '' : 'home',
-      'new':'editUser'
+      'new':'editUser',
+      'edit/:id':'editUser',
+      'delete/:id':'deleteUser'
     }
   });
 
@@ -109,8 +137,8 @@ $(document).ready(function() {
     userList.render();
   });
 
-  router.on('route:editUser', function() {
-    userForm.render();
+  router.on('route:editUser', function(id) {
+    userForm.render({id: id});
   });
 
   Backbone.history.start();

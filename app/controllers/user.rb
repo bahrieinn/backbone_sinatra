@@ -11,7 +11,13 @@ get '/users' do
   end
 end
 
-
+get '/users/:id' do
+  if request.xhr?
+    user = User.find(params[:id])
+    user.to_json
+  else
+  end
+end
 
 
 ####### POST ###############
@@ -30,4 +36,27 @@ post '/users'  do
   else
   end
   
+end
+
+put '/users/:id' do
+  if request.xhr?
+    content_type :json
+    user = User.find(params[:id])
+    new_attributes = JSON.parse(request.body.read)
+    user.assign_attributes(new_attributes)
+    if user.save!
+      new_attributes.to_json
+    else
+      "User NOT saved!"
+    end
+  end
+end
+
+delete '/users/:id' do
+  if request.xhr?
+    user = User.find(params[:id])
+    user.destroy
+    {}.to_json
+  else
+  end
 end

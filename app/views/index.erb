@@ -23,6 +23,7 @@
         <td>{{= user.first_name }}</td>
         <td>{{= user.last_name }}</td>
         <td>{{= user.age }}</td>
+        <td><a href="#/edit/{{= user.id }}" class="btn">Edit User</a></td>
       </tr>
       {{ }); }}
     </tbody>
@@ -31,17 +32,25 @@
 
 <script type="text/template" id="edit-user-template">
   <form class="edit-user-form">
-    <legend>Create User</legend>
+
+    <legend>{{= user ? 'Update User' : 'Create User'}}</legend>
+    {{ var userData }}
+    {{ user ? userData = user.get('user') : null }}
     <label>First Name</label>
-    <input type="text" id="first_name" name="first_name">
+    <input type="text" id="first_name" name="first_name" value= "{{= user ? userData.first_name : '' }}" />
     
     <label>Last Name</label>
-    <input type="text" id="last_name" name="last_name">
+    <input type="text" id="last_name" name="last_name" value= "{{= user ? userData.last_name : '' }}" />
 
     <label>Age</label>
-    <input type="text" id="age" name="age">
+    <input type="text" id="age" name="age" value= "{{= user ? userData.age : '' }}"/>
     <hr/>
-    <button type="submit" class="btn">Create User</button>
+    <button type="submit" class="btn">{{= user ? 'Update User' : 'Create User'}}</button>
+
+    {{ if(user) { }}
+      <input type="hidden" name="id" value="{{=userData.id}}"/>
+      <button class="btn btn-danger delete">Delete</button>
+    {{ }; }}
   </form>
 </script>
   
